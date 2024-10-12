@@ -2,7 +2,9 @@
 #include <fstream>
 #include <vector>
 #include <pthread.h>
-#include <cstdlib>
 using namespace std;
 
-
+struct student{
+    int id;
+    int passing;
+};
