@@ -27,6 +27,11 @@ void* calculateReturnPercent(void* arg){
   pthread_exit(NULL);
 }
 
+void* messagetoUser(void* arg){
+  cout << "MT: Hi User! How has your day been?" << endl;
+  pthread_exit(NULL);
+}
+
 int stringToInt(char* str){
   int num = 0;
   for (int i = 0; str[i] != '\0'; i++){
@@ -53,7 +58,7 @@ int main(int argc, char* argv[]) {
     count++;
   }
 
-  pthread_t threads[numThreads];
+  pthread_t threads[numThreads +1];
   thread data[numThreads];
   int studentsPerThread = count / numThreads;
 
@@ -64,11 +69,15 @@ int main(int argc, char* argv[]) {
     pthread_create(&threads[i], NULL, calculateReturnPercent, &data[i]);
   }
 
+  pthread_create(&threads[numThreads], NULL, messagetoUser, NULL);
+
   int totalPassing = 0;
   for (int i = 0; i < numThreads; i++){
     pthread_join(threads[i], NULL);
     totalPassing += data[i].passingCount;
   }
+
+  pthread_join(threads[numThreads],NULL);
 
   double percent = (double(totalPassing) / count) * 100;
   cout << "MT: Return Percentage: " << percent << "%" << endl;
