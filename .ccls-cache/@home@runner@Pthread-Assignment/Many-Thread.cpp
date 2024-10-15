@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <pthread.h>
+#include <cstdlib>
 using namespace std;
 
 struct student{
@@ -9,22 +9,72 @@ struct student{
     int passing;
 };
 
-something
+struct thread{
+student* students;
+int starting;
+int ending;
+int passingCount;
+};
 
-//I know we will need this we can just modify later
-int main() {
+void* calculateReturnPercent(void* arg){
+  thread* data = (thread*) arg;
+  data->passingCount = 0;
+  for(int i = data->starting; i < data->ending; i++){
+    if (data->students[i].passing == 1){
+      data->passingCount++;
+    }
+  }
+  pthread_exit(NULL);
+}
+
+int stringToInt(char* str){
+  int num = 0;
+  for (int i = 0; str[i] != '\0'; i++){
+    num = num * 10 + (str[i] - '0');
+  }
+  return num;
+}
+
+int main(int argc, char* argv[]) {
+  if (argc < 2) {
+    return 1;
+  }
+  int numThreads = stringToInt(argv[1]);
+
   ifstream infile("students.txt");
-  vector<student> students;
+  student students[10];
+  int count = 0;
   int id;
   int passing;
 
-  while(infile >> id >> passing){
-    students.push_back({id, passing});
+  while(infile >> id >> passing && count < 10){
+    students[count].id = id;
+    students[count].passing = passing;
+    count++;
   }
 
-  double returnPercent = calculateReturnPercent(students);
-  cout << "NT: Return Percentage: " << returnPercent << "%" << endl;
+  pthread_t threads[numThreads];
+  thread data[numThreads];
+  int studentsPerThread = count / numThreads;
+
+  for(int i = 0; i < numThreads; i++){
+    data[i].students = students;
+    data[i].starting = i * studentsPerThread;
+    data[i].ending = (i + 1) * studentsPerThread;
+    pthread_create(&threads[i], NULL, calculateReturnPercent, &data[i]);
+  }
+
+  int totalPassing = 0;
+  for (int i = 0; i < numThreads; i++){
+    pthread_join(threads[i], NULL);
+    totalPassing += data[i].passingCount;
+  }
+
+  double percent = (double(totalPassing) / count) * 100;
+  cout << "MT: Return Percentage: " << percent << "%" << endl;
 
   return 0;
 
 }
+
+

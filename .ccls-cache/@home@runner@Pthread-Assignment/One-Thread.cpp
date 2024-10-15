@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <pthread.h>
 using namespace std;
 
@@ -9,35 +8,43 @@ struct student{
     int passing;
 };
 
-struct thread {
-  vector<student> students;
-  int percent;
-};
+
 
 //not finished i just copied and pasted the code but was gonna turn it into a void
-void calculatePercent(){
-  int total = students.size();
+int calculateReturnPercent(student grades[],int size){
   int passingCount = 0;
-  for(int i = 0; i < total; i++){
-    if (students[i].passing == 1) {
+  for(int i = 0; i < size; i++){
+    if (grades[i].passing == 1) {
       passingCount++;
     }
   }
-  return (double(passingCount) / total) * 100;
+  //calculation for those who passed 
+  return (passingCount / size) * 100;
 }
 
 //I know we will need this we can just modify later
 int main() {
-  ifstream infile("students.txt");
-  vector<student> students;
-  int id;
-  int passing;
+ const int Students = 10; 
+  student grades[Students];
+  ifstream inputStream;
+  ofstream outputStream;
+  string nameofFile;
+  cout<<"Enter the designated file you are looking for"<<endl;
+  cin>>nameofFile;
+  inputStream.open(nameofFile);
+  if(inputStream.fail())
+  {
+      cout<< "Ouuu out of luck can't find the file"  <<endl;
 
-  while(infile >> id >> passing){
-    students.push_back({id, passing});
+  }
+  inputStream.close();
+  int numbers=0;
+  // this will put get the data from the file and it will be put into the array 
+  while(numbers< Students && inputStream >> grades[numbers].id >> grades[numbers].passing){
+    numbers++;
   }
 
-  double returnPercent = calculateReturnPercent(students);
+  int returnPercent = calculateReturnPercent(grades,numbers);
   cout << "NT: Return Percentage: " << returnPercent << "%" << endl;
 
   return 0;
