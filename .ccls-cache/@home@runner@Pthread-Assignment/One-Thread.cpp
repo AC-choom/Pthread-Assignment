@@ -7,19 +7,24 @@ struct student{
     int id;
     int passing;
 };
-
+struct thread{
+student* grades;
+int size;
+int passingCount;
+};
 
 
 //not finished i just copied and pasted the code but was gonna turn it into a void
-int calculateReturnPercent(student grades[],int size){
-  int passingCount = 0;
-  for(int i = 0; i < size; i++){
-    if (grades[i].passing == 1) {
-      passingCount++;
+void *calculateReturnPercent(void*arg){
+  thread*data=(thread*)arg;
+  data->passingCount = 0;
+  for(int i = 0; i < data->size; i++){
+    if (data->grades[i].passing == 1) {
+      data->passingCount++;
     }
   }
   //calculation for those who passed 
-  return (passingCount / size) * 100;
+  pthread_exit(NULL);
 }
 
 //I know we will need this we can just modify later
@@ -37,15 +42,23 @@ int main() {
       cout<< "Ouuu out of luck can't find the file"  <<endl;
 
   }
-  inputStream.close();
+  
   int numbers=0;
   // this will put get the data from the file and it will be put into the array 
-  while(numbers< Students && inputStream >> grades[numbers].id >> grades[numbers].passing){
+  while(numbers < Students && inputStream >> grades[numbers].id >> grades[numbers].passing){
     numbers++;
   }
+  thread data;
+  data.grades = grades;
+  data.size =  numbers;
+pthread_t thread;
 
-  int returnPercent = calculateReturnPercent(grades,numbers);
-  cout << "NT: Return Percentage: " << returnPercent << "%" << endl;
+   pthread_create(&thread, NULL, calculateReturnPercent, &data);
+  pthread_join(thread, NULL);
+  
+  inputStream.close();
+  double percent = (double(data.passingCount) /data.size) * 100;
+  cout << "OT: Return Percentage: " << percent << "%" << endl;
 
   return 0;
 
