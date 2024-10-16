@@ -93,5 +93,6 @@ int main(int argc, char* argv[]) {
   return 0;
 
 }
-
+// Use ( g++ -o manythreads Many-Thread.cpp -lpthread ) to run many threads file
+// Then use (./manythreads (any number) )to run the program
 
