@@ -46,19 +46,27 @@ int main(int argc, char* argv[]) {
   }
   int numThreads = stringToInt(argv[1]);
 
-  ifstream infile("students.txt");
+  ifstream inputStream;
+  string fileName;
   student students[10];
-  int count = 0;
   int id;
   int passing;
-
-  while(infile >> id >> passing && count < 10){
+  cout << "Enter the file you are looking for: " << endl;
+  cin >> fileName;
+  inputStream.open(fileName);
+  if(inputStream.fail()){
+    cout << "Damn, no file found" << endl;
+    return 1;
+  }
+  int count = 0;
+  while(inputStream >> id >> passing && count < 10){
     students[count].id = id;
     students[count].passing = passing;
     count++;
   }
+  inputStream.close();
 
-  pthread_t threads[numThreads +1];
+  pthread_t threads[numThreads + 1];
   thread data[numThreads];
   int studentsPerThread = count / numThreads;
 
